@@ -167,7 +167,7 @@ void display(void){
             glPushMatrix();
                 glTranslatef (1.0, 0.2, 0.0);
                 glRotatef ((GLfloat) dedo_indicador, 0.0, 0.0, 1.0);
-                glTranslatef (0.25, 0.0, -0.3);
+                glTranslatef (0.25, 0.0, -0.5);
 
                 glScalef(0.5, 0.1, 0.3);
                 glColor3f(0.0,0.0,1.0);
