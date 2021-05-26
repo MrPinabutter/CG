@@ -13,7 +13,7 @@
 
 #define ESC 27
 
-static int ombro = 0, cotovelo = 0, dedo_medio = 0, dedo_indicador = 0, polegar = 0;
+static int ombro = 0, ombro_y = 0, cotovelo = 0, dedo_medio = 0, dedo_indicador = 0, polegar = 0;
 
 void init(void);
 void keyboard (unsigned char key, int x, int y);
@@ -70,6 +70,14 @@ void reshape (int w, int h){
 
 void keyboard (unsigned char key, int x, int y){
 	switch (key) {
+		case 'y': // sentido anti-hor�rio
+			ombro_y = (ombro_y + 5) % 360;
+			glutPostRedisplay();
+		break;
+		case 'Y': // sentido anti-hor�rio
+			ombro_y = (ombro_y - 5) % 360;
+			glutPostRedisplay();
+		break;
 		case 'o': // sentido anti-hor�rio
 			ombro = (ombro + 5) % 360;
 			glutPostRedisplay();
@@ -125,6 +133,7 @@ void display(void){
     glPushMatrix();
         /* origem posicionada no ombro */
        glTranslatef (-1.0, 0.0, 0.0);
+       glRotatef ((GLfloat) ombro_y, 0.0, 1.0, 0.0);
        glRotatef ((GLfloat) ombro, 0.0, 0.0, 1.0);
         /* origem posicionada no centro do bra�o */
        glTranslatef (1.0, 0.0, 0.0);
@@ -134,7 +143,7 @@ void display(void){
            glScalef (2.0, 0.4, 1.0);
 //            glColor3f(0.0,1.0,0.0); 
 //            glutSolidCube (1.0);
-            glColor3f(0.0,0.0,0.0);
+            glColor3f(1.0,0.0,0.0);
             glutSolidCube(1.0);
         glPopMatrix();
 
@@ -146,7 +155,7 @@ void display(void){
 //          braco 
             glPushMatrix();
                glScalef (2.0, 0.4, 1.0);
-               glColor3f(1.0,1.0,0.0);
+               glColor3f(0.0,1.0,0.0);
                glutSolidCube (1.0);
             glPopMatrix();
 // Dedos de cima
@@ -156,7 +165,7 @@ void display(void){
                 glRotatef ((GLfloat) dedo_medio, 0.0, 0.0, 1.0);
                 glTranslatef (0.25, 0.0, -0.3);
                 glScalef(0.5, 0.1, 0.3);
-                glColor3f(1.0,0.0,1.0);
+                glColor3f(0.0,1.0,1.0);
                 glutSolidCube (1.0);
             glPopMatrix();
 
@@ -176,16 +185,13 @@ void display(void){
 
 
 // Dedo de baixo
-        // // glTranslatef (0.0, -0.2, 0.0);
-        // glRotatef ((GLfloat) polegar, 0.0, 0.0, 1.0);
-        // glTranslatef (0.25, 0.0, -0.3);
-
         glPushMatrix();
-                glTranslatef (1.0, -0.2, 0.0);
-                glRotatef ((GLfloat) polegar, 0.0, 0.0, 1.0);
-                glTranslatef (0.25, 0.0, -0.8);
+            glTranslatef (1.0, -0.2, 0.0);
+            glRotatef ((GLfloat) polegar, 0.0, 0.0, 1.0);
+            glTranslatef (0.25, 0.0, -0.8);
+
             glScalef(0.5, 0.1, 0.3);
-            glColor3f(0.5,0.5,1.0);
+            glColor3f(1.0, 1.0, 0.0);
             glutSolidCube (1.0);
         glPopMatrix();
 

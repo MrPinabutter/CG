@@ -235,20 +235,38 @@ void retaImediata(double x1,double y1,double x2,double y2){
 }
 
 void bresenham(double x1,double y1,double x2,double y2){
-    double dx, dy, d, m, yd, xd;
+    double dx, dy, d, m, yd, xd, D=false, S=false;
     double xmin, xmax, ymin, ymax, incE, incNE;
     //Armazenando os extremos para desenho
-    pontos = pushPonto((int)x1,(int)y1);
-    pontos = pushPonto((int)x2,(int)y2);
 
 
     if(x2-x1 != 0){ //Evita a divis�o por zero
-        if(x1 > x2){ // Tratando para 4 e 5 octante
-            swap(x1, x2);
-            swap(y1, y2);
+        dx = x2-x1;
+        dy = y2-y1;
+
+        if(dx*dy < 0){
+            y1 *= -1;
+            y2 *= -1;
+            dx = x2-x1;
+            dy = y2-y1;
+            S = true;
         }
 
-        m = (y2-y1)/(x2-x1);
+        if(abs(dy) > abs(dx)){
+            swap(x1, y1);
+            swap(x2, y2);
+            dx = x2-x1;
+            dy = y2-y1;
+            D = true;
+        }
+
+        if(x1 > x2){
+            swap(x1, x2);
+            swap(y1, y2);
+            dx = x2-x1;
+            dy = y2-y1;
+        }
+
         d = 2*dy - dx;
 
         xmin = (x1 < x2)? x1 : x2;
@@ -256,56 +274,37 @@ void bresenham(double x1,double y1,double x2,double y2){
         ymin = (y1 < y2)? y1 : y2;
         ymax = (y1 > y2)? y1 : y2;
         
-        dx = x2-x1;
-        dy = y2-y1;
-
         incE = 2*dy;
         incNE = 2*(dy-dx);
 
         yd = floor(ymin);
         xd = floor(x1);
+        int auxX, auxY;
 
-        if(m>=0 && m <= 1){ // primeiro octante
-            for(int x=(int)xmin+1; x <= xmax; x++){
-                if(d <= 0){
-                    d += incE;
-                    pontos = pushPonto(x,(int)yd);
-                } else {
-                    d += incNE;
-                    yd++;
-                    pontos = pushPonto(x,(int)yd);
+        for(int x=(int)xmin+1; x <= xmax; x++){
+            auxX = x;
+            auxY = (int) yd;
+            if(d <= 0){
+                d += incE;
+                if(D){
+                    swap(auxX, auxY);
                 }
+                if(S){
+                    auxY *= -1;
+                }
+                pontos = pushPonto(auxX,auxY);
+            } else {
+                d += incNE;
+                yd++;
+                if(D){
+                    swap(auxX, auxY);
+                }
+                if(S){
+                    auxY *= -1;
+                }
+                pontos = pushPonto(auxX,auxY);
             }
         }
-        else if(m <=0 && m >= -1){ // oitavo octante
-            yd = floor(ymax);
-            incE = -2*dy;
-            incNE = 2*(-dy-dx);  
-            for(int x=(int)xmin+1; x <= xmax; x++){
-                if(d <= 0){
-                    d += incE;
-                    pontos = pushPonto(x,(int)yd);
-                } else {
-                    yd--;
-                    d += incNE;
-                    pontos = pushPonto(x,(int)yd);
-                }
-            }
-        }
-        // else if(m > 1){
-        //     incNE = -incNE;
-        //     for(int y=(int)ymin+1; y <= ymax; y++){
-        //         cout << d << endl;
-        //         if(d >= 0){
-        //             d += incE;
-        //             pontos = pushPonto((int)xd, y);
-        //         } else {
-        //             d += incNE;
-        //             xd++;
-        //             pontos = pushPonto((int)xd,y);
-        //         }
-        //     }
-        // }
 
     }else{ // se x2-x1 == 0, reta perpendicular ao eixo x
         ymin = (y1 < y2)? y1 : y2;
@@ -315,4 +314,3 @@ void bresenham(double x1,double y1,double x2,double y2){
         }
     }
 }
-
