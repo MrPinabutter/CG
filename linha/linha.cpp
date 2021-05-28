@@ -1,10 +1,3 @@
-//*********************************************************************
-//  Codigo exemplo para aula pratica de Computacao Grafica 
-//  Assunto: Rasterizacao e Transformacoes Geometricas
-//
-//  Autor: Prof. Laurindo de Sousa Britto Neto
-//*********************************************************************
-
 // Bibliotecas utilizadas pelo OpenGL
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -20,9 +13,21 @@
 using namespace std;
 
 // Variaveis Globais
-bool click1 = false, click2 = false;
+bool click1 = false, click2 = false, click3 = false;
 
-double x_1,y_1,x_2,y_2;
+double x_1,y_1,x_2,y_2,x_3,y_3;
+
+int contClicks = 2; 
+int mode = 1;
+/*
+    Modos de uso:
+    0 - Linhas
+    1 - Triangulos
+    2 - Quadrilateros
+    3 - Circunferências
+
+*/
+
 
 int width = 512, height = 512; //Largura e altura da janela
 
@@ -72,12 +77,41 @@ void mouse(int button, int state, int x, int y);
 
 // Funcao que implementa o Algoritmo Imediato para rasterizacao de retas
 void retaImediata(double x1,double y1,double x2,double y2);
+
+// Função do breseham
 void bresenham(double x1,double y1,double x2,double y2);
+
 // Funcao que percorre a lista de pontos desenhando-os na tela
 void drawPontos();
 
+// Funcoes de desenhos
+void drawLine();
+void drawTriangle();
+
+// Menu botao direito
+void menuOptions(int op) {
+    switch (op){
+    case 0:
+        cout << "Modo linha" << endl;
+        mode = 0;
+        break;
+    case 1:
+        cout << "Modo triangulo" << endl;
+        mode = 1;
+        break;
+    case 2:
+        cout << "Modo Poligono" << endl;
+        mode = 2;
+        break;
+    default:
+        break;
+    }
+    drawPontos();
+}
+
 // Funcao Principal do C
 int main(int argc, char** argv){
+    int menu;
     glutInit(&argc, argv); // Passagens de parametro C para o glut
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB); // Selecao do Modo do Display e do Sistema de cor utilizado
     glutInitWindowSize (width, height);  // Tamanho da janela do OpenGL
@@ -88,6 +122,11 @@ int main(int argc, char** argv){
     glutKeyboardFunc(keyboard); //funcao callback do teclado
     glutMouseFunc(mouse); //funcao callback do mouse
     glutDisplayFunc(display); //funcao callback de desenho
+    menu = glutCreateMenu(menuOptions);
+    glutAddMenuEntry("LINHA", 0);
+    glutAddMenuEntry("TRIANGULO", 1);
+    glutAddMenuEntry("POLI", 2);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
     glutMainLoop(); // executa o loop do OpenGL
     return 0; // retorna 0 para o tipo inteiro da funcao main();
 }
@@ -115,6 +154,7 @@ void reshape(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
     click1 = true; //Para redesenhar os pixels selecionados
     click2 = true;
+    click3 = true;
 }
 
 // Funcao usada na funcao callback para utilizacao das teclas normais do teclado
@@ -132,26 +172,35 @@ void mouse(int button, int state, int x, int y)
    switch (button) {
       case GLUT_LEFT_BUTTON:
          if (state == GLUT_DOWN) {
-            if(click1){
+            if(click1 && !click2){
                 click2 = true;
                 x_2 = x;
                 y_2 = height - y;
                 printf("x2y2(%.0f,%.0f)\n",x_2,y_2);
+                if(mode == 0){
+                    glutPostRedisplay();
+                }
+            }else if(click2){
+                click3 = true;
+                x_3 = x;
+                y_3 = height - y;
+                printf("x3y3(%.0f,%.0f)\n",x_3,y_3);
                 glutPostRedisplay();
-            }else{
+            }else {
                 click1 = true;
                 x_1 = x;
                 y_1 = height - y;
                 printf("x1y1(%.0f,%.0f)\n",x_1,y_1);
+                
             }
          }
          break;
 /*
-      case GLUT_MIDDLE_BUTTON:
-         if (state == GLUT_DOWN) {
-            glutPostRedisplay();
-         }
-         break;
+        case GLUT_RIGHT_BUTTON:
+            if (state == GLUT_UP) {
+                glutPostRedisplay();
+            }
+            break;
       case GLUT_RIGHT_BUTTON:
          if (state == GLUT_DOWN) {
             glutPostRedisplay();
@@ -170,16 +219,41 @@ void display(void){
     
     glColor3f (0.0, 0.0, 0.0); // Seleciona a cor default como preto
     
-
-    if(click1 && click2){
-        bresenham(x_1,y_1,x_2,y_2);
-        drawPontos();
-        click1 = false;
-        click2 = false;
+    cout << "mode: " << mode << endl;
+    switch (mode){
+    case 0:
+        drawLine();
+        break;
+    case 1: 
+        drawTriangle();
+        break;
+    default:
+        break;
     }
 
     glutSwapBuffers(); // manda o OpenGl renderizar as primitivas
 
+}
+
+void drawLine() {
+    if(click1 && click2){
+        bresenham(x_1,y_1,x_2,y_2);
+        click1 = false;
+        click2 = false;
+    }
+    drawPontos();
+}
+
+void drawTriangle() {
+    if(click1 && click2 && click3){
+        bresenham(x_1,y_1,x_2,y_2);
+        bresenham(x_1,y_1,x_3,y_3);
+        bresenham(x_2,y_2,x_3,y_3);
+        click1 = false;
+        click2 = false;
+        click3 = false;
+    }
+    drawPontos();
 }
 
 //Funcao que desenha os pontos contidos em uma lista de pontos
@@ -238,7 +312,6 @@ void bresenham(double x1,double y1,double x2,double y2){
     double dx, dy, d, m, yd, xd, D=false, S=false;
     double xmin, xmax, ymin, ymax, incE, incNE;
     //Armazenando os extremos para desenho
-
 
     if(x2-x1 != 0){ //Evita a divis�o por zero
         dx = x2-x1;
