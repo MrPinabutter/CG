@@ -18,7 +18,7 @@ bool click1 = false, click2 = false, click3 = false;
 double x_1,y_1,x_2,y_2,x_3,y_3;
 
 int contClicks = 2; 
-int mode = 1;
+int mode = 0;
 /*
     Modos de uso:
     0 - Linhas
@@ -87,20 +87,24 @@ void drawPontos();
 // Funcoes de desenhos
 void drawLine();
 void drawTriangle();
+void drawSquare();
 
 // Menu botao direito
 void menuOptions(int op) {
     switch (op){
     case 0:
         cout << "Modo linha" << endl;
+        contClicks = 2;
         mode = 0;
         break;
     case 1:
         cout << "Modo triangulo" << endl;
+        contClicks = 3;
         mode = 1;
         break;
     case 2:
-        cout << "Modo Poligono" << endl;
+        cout << "Modo quadrado" << endl;
+        contClicks = 2;
         mode = 2;
         break;
     default:
@@ -177,7 +181,7 @@ void mouse(int button, int state, int x, int y)
                 x_2 = x;
                 y_2 = height - y;
                 printf("x2y2(%.0f,%.0f)\n",x_2,y_2);
-                if(mode == 0){
+                if(contClicks == 2){
                     glutPostRedisplay();
                 }
             }else if(click2){
@@ -227,6 +231,9 @@ void display(void){
     case 1: 
         drawTriangle();
         break;
+    case 2:
+        drawSquare();
+        break;
     default:
         break;
     }
@@ -256,7 +263,6 @@ void drawTriangle() {
     drawPontos();
 }
 
-//Funcao que desenha os pontos contidos em uma lista de pontos
 void drawPontos(){
     ponto * pnt;
     pnt = pontos;
@@ -354,7 +360,7 @@ void bresenham(double x1,double y1,double x2,double y2){
         xd = floor(x1);
         int auxX, auxY;
 
-        for(int x=(int)xmin+1; x <= xmax; x++){
+        for(int x=(int)xmin; x <= xmax; x++){
             auxX = x;
             auxY = (int) yd;
             if(d <= 0){
@@ -386,4 +392,16 @@ void bresenham(double x1,double y1,double x2,double y2){
             pontos = pushPonto((int)x1,y);
         }
     }
+}
+
+void drawSquare(){
+    if(click1 && click2){
+        bresenham(x_1,y_1, x_1,y_2);
+        bresenham(x_1,y_2, x_2,y_2);
+        bresenham(x_2,y_2, x_2,y_1);
+        bresenham(x_1,y_1, x_2,y_1);
+        click1 = false;
+        click2 = false;
+    }
+    drawPontos();
 }
