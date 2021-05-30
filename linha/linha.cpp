@@ -13,11 +13,11 @@
 using namespace std;
 
 // Variaveis Globais
-bool click1 = false, click2 = false, click3 = false;
+bool click1 = false, click2 = false, click3 = false, auxPoli=false;
 
-double x_1,y_1,x_2,y_2,x_3,y_3;
+double x_1,y_1,x_2,y_2,x_3,y_3,poli_x1,poli_y1;
 
-int contClicks = 2; 
+int contClicks = 2, contPoli=0; 
 int mode = 0;
 /*
     Modos de uso:
@@ -27,7 +27,6 @@ int mode = 0;
     3 - Circunferências
 
 */
-
 
 int width = 512, height = 512; //Largura e altura da janela
 
@@ -90,6 +89,7 @@ void drawLine();
 void drawTriangle();
 void drawSquare();
 void drawCircle();
+void drawPoli();
 
 // Menu botao direito
 void menuOptions(int op) {
@@ -114,7 +114,10 @@ void menuOptions(int op) {
         contClicks = 2;
         mode = 3;
         break;
-    default:
+    case 4: 
+        cout << "Modo poligono" << endl;
+        contClicks = 2;
+        mode = 4;
         break;
     }
     drawPontos();
@@ -138,6 +141,7 @@ int main(int argc, char** argv){
     glutAddMenuEntry("Triangulo", 1);
     glutAddMenuEntry("Quadrado", 2);
     glutAddMenuEntry("Circulo", 3);
+    glutAddMenuEntry("Poligono", 4);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     glutMainLoop(); // executa o loop do OpenGL
     return 0; // retorna 0 para o tipo inteiro da funcao main();
@@ -171,16 +175,22 @@ void reshape(int w, int h)
 
 // Funcao usada na funcao callback para utilizacao das teclas normais do teclado
 void keyboard(unsigned char key, int x, int y){
+    cout << key << endl;
     switch (key) { // key - variavel que possui valor ASCII da tecla precionada
         case 27: // codigo ASCII da tecla ESC
             exit(0); // comando pra finalizacao do programa
-        break;
+            break;
+        case 'f':
+            cout << "F press" << endl;
+            auxPoli = true;
+            break;
+        default:
+            break;
     }
 }
 
 //Funcao usada na funcao callback para a utilizacao do mouse
-void mouse(int button, int state, int x, int y)
-{
+void mouse(int button, int state, int x, int y){
    switch (button) {
       case GLUT_LEFT_BUTTON:
          if (state == GLUT_DOWN) {
@@ -189,9 +199,8 @@ void mouse(int button, int state, int x, int y)
                 x_2 = x;
                 y_2 = height - y;
                 printf("x2y2(%.0f, %.0f)\n",x_2,y_2);
-                if(contClicks == 2){
+                if(contClicks == 2)
                     glutPostRedisplay();
-                }
             }else if(click2){
                 click3 = true;
                 x_3 = x;
@@ -203,6 +212,8 @@ void mouse(int button, int state, int x, int y)
                 x_1 = x;
                 y_1 = height - y;
                 printf("x1y1(%.0f, %.0f)\n",x_1,y_1);
+                if(contClicks == 1)
+                    glutPostRedisplay();
             }
          }
          break;
@@ -220,20 +231,22 @@ void display(void){
     
     cout << "mode: " << mode << endl;
     switch (mode){
-    case 0:
-        drawLine();
-        break;
-    case 1: 
-        drawTriangle();
-        break;
-    case 2:
-        drawSquare();
-        break;
-    case 3:
-        drawCircle();
-        break;
-    default:
-        break;
+        case 0:
+            drawLine();
+            break;
+        case 1: 
+            drawTriangle();
+            break;
+        case 2:
+            drawSquare();
+            break;
+        case 3:
+            drawCircle();
+            break;
+        case 4:
+            drawPoli();
+        default:
+            break;
     }
 
     glutSwapBuffers(); // manda o OpenGl renderizar as primitivas
@@ -466,4 +479,29 @@ void bresenhamCircle(double x1,double y1,double x2,double y2){
             pontos = pushPonto((int)-auxY+x1, (int)-auxX+y1);
         }
     }
+}
+
+void drawPoli() {
+    if(click1 && click2){
+        if(contPoli == 0){
+            poli_x1 = x_1;
+            poli_y1 = y_1;
+            cout << "ContPoli = " << poli_x1 << " " << poli_y1 << endl;
+        }
+        if(auxPoli){
+            bresenham(poli_x1,poli_y1,x_1,y_1);
+            click2 = false;
+            click1 = false;
+            contPoli = 0;
+            auxPoli = false;
+        }else{
+            cout << "ContPoli = " << contPoli << endl;
+            bresenham(x_1,y_1,x_2,y_2);
+            swap(x_1, x_2);
+            swap(y_1, y_2);
+            click2 = false;
+            contPoli++;
+        }
+    }
+    drawPontos();
 }
