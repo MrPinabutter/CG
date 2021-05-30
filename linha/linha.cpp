@@ -80,6 +80,7 @@ void retaImediata(double x1,double y1,double x2,double y2);
 
 // Função do breseham
 void bresenham(double x1,double y1,double x2,double y2);
+void bresenhamCircle(double x1,double y1,double x2,double y2);
 
 // Funcao que percorre a lista de pontos desenhando-os na tela
 void drawPontos();
@@ -88,6 +89,7 @@ void drawPontos();
 void drawLine();
 void drawTriangle();
 void drawSquare();
+void drawCircle();
 
 // Menu botao direito
 void menuOptions(int op) {
@@ -106,6 +108,11 @@ void menuOptions(int op) {
         cout << "Modo quadrado" << endl;
         contClicks = 2;
         mode = 2;
+        break;
+    case 3: 
+        cout << "Modo circulo" << endl;
+        contClicks = 2;
+        mode = 3;
         break;
     default:
         break;
@@ -127,9 +134,10 @@ int main(int argc, char** argv){
     glutMouseFunc(mouse); //funcao callback do mouse
     glutDisplayFunc(display); //funcao callback de desenho
     menu = glutCreateMenu(menuOptions);
-    glutAddMenuEntry("LINHA", 0);
-    glutAddMenuEntry("TRIANGULO", 1);
-    glutAddMenuEntry("POLI", 2);
+    glutAddMenuEntry("Linha", 0);
+    glutAddMenuEntry("Triangulo", 1);
+    glutAddMenuEntry("Quadrado", 2);
+    glutAddMenuEntry("Circulo", 3);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     glutMainLoop(); // executa o loop do OpenGL
     return 0; // retorna 0 para o tipo inteiro da funcao main();
@@ -180,7 +188,7 @@ void mouse(int button, int state, int x, int y)
                 click2 = true;
                 x_2 = x;
                 y_2 = height - y;
-                printf("x2y2(%.0f,%.0f)\n",x_2,y_2);
+                printf("x2y2(%.0f, %.0f)\n",x_2,y_2);
                 if(contClicks == 2){
                     glutPostRedisplay();
                 }
@@ -188,29 +196,16 @@ void mouse(int button, int state, int x, int y)
                 click3 = true;
                 x_3 = x;
                 y_3 = height - y;
-                printf("x3y3(%.0f,%.0f)\n",x_3,y_3);
+                printf("x3y3(%.0f, %.0f)\n",x_3,y_3);
                 glutPostRedisplay();
             }else {
                 click1 = true;
                 x_1 = x;
                 y_1 = height - y;
-                printf("x1y1(%.0f,%.0f)\n",x_1,y_1);
-                
+                printf("x1y1(%.0f, %.0f)\n",x_1,y_1);
             }
          }
          break;
-/*
-        case GLUT_RIGHT_BUTTON:
-            if (state == GLUT_UP) {
-                glutPostRedisplay();
-            }
-            break;
-      case GLUT_RIGHT_BUTTON:
-         if (state == GLUT_DOWN) {
-            glutPostRedisplay();
-         }
-         break;
-*/
       default:
          break;
    }
@@ -233,6 +228,9 @@ void display(void){
         break;
     case 2:
         drawSquare();
+        break;
+    case 3:
+        drawCircle();
         break;
     default:
         break;
@@ -404,4 +402,68 @@ void drawSquare(){
         click2 = false;
     }
     drawPontos();
+}
+
+void drawCircle(){
+    if(click1 && click2){
+        bresenhamCircle(x_1,y_1, x_2,y_2);
+        click1 = false;
+        click2 = false;
+    }
+    drawPontos();
+}
+
+void bresenhamCircle(double x1,double y1,double x2,double y2){
+    double dx, dy, d, m, yd, xd, r;
+    double deltaE = 3, deltaSE;
+
+    r = sqrt(pow(x1-x2, 2) + pow(y1-y2, 2));
+    cout << r << " Raio " << y1-y2 << " " << x1-x2 << endl;
+
+    deltaSE = -2*r + 5;
+
+    dx = x2-x1;
+    dy = y2-y1;
+
+    d = 1 - r;
+
+    int auxX, auxY;
+    yd = r;
+    for(int x = 0; x <= (int) r*0.72; x++){
+        cout << "X: " << x <<" Y: " << yd << endl;
+        auxX = x;
+        auxY = yd;
+        if(d < 0){
+            d += deltaE;
+            deltaE += 2; 
+            deltaSE += 2; 
+            pontos = pushPonto(auxX+x1,auxY+y1);
+            pontos = pushPonto((int)auxY+x1, (int)auxX+y1);
+
+            pontos = pushPonto(-auxX+x1,auxY+y1);
+            pontos = pushPonto((int)-auxY+x1, (int)auxX+y1);
+
+            pontos = pushPonto(auxX+x1,-auxY+y1);
+            pontos = pushPonto((int)auxY+x1, (int)-auxX+y1);
+
+            pontos = pushPonto(-auxX+x1,-auxY+y1);
+            pontos = pushPonto((int)-auxY+x1, (int)-auxX+y1);
+        } else {
+            d += deltaSE;
+            deltaE += 2; 
+            deltaSE += 4; 
+            yd--;
+            pontos = pushPonto(auxX+x1,auxY+y1);
+            pontos = pushPonto((int)auxY+x1, (int)auxX+y1);
+
+            pontos = pushPonto(-auxX+x1,auxY+y1);
+            pontos = pushPonto((int)-auxY+x1, (int)auxX+y1);
+
+            pontos = pushPonto(auxX+x1,-auxY+y1);
+            pontos = pushPonto((int)auxY+x1, (int)-auxX+y1);
+
+            pontos = pushPonto(-auxX+x1,-auxY+y1);
+            pontos = pushPonto((int)-auxY+x1, (int)-auxX+y1);
+        }
+    }
 }
