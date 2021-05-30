@@ -25,6 +25,7 @@ int mode = 0;
     1 - Triangulos
     2 - Quadrilateros
     3 - Circunferências
+    4 - Poligono
 
 */
 
@@ -116,6 +117,7 @@ void menuOptions(int op) {
         break;
     case 4: 
         cout << "Modo poligono" << endl;
+        cout << "Pressione F e clique com o botão esquerdo do mouse para fechar" << endl;
         contClicks = 2;
         mode = 4;
         break;
@@ -248,9 +250,8 @@ void display(void){
         default:
             break;
     }
-
+    
     glutSwapBuffers(); // manda o OpenGl renderizar as primitivas
-
 }
 
 void drawLine() {
