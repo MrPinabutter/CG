@@ -10,6 +10,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+# define PI 3.14159265359
+
 using namespace std;
 
 // Variaveis Globais
@@ -92,6 +94,11 @@ void drawSquare();
 void drawCircle();
 void drawPoli();
 
+// Transformações geométricas
+void scale(double sx, double sy);
+void shear(double cx, double cy);
+void reflection(bool x, bool y);
+void rotation(double angulo);
 // Menu botao direito
 void menuOptions(int op) {
     switch (op){
@@ -119,7 +126,28 @@ void menuOptions(int op) {
         cout << "Modo poligono" << endl;
         cout << "Pressione F e clique com o botão esquerdo do mouse para fechar" << endl;
         contClicks = 2;
+        contPoli=0; 
         mode = 4;
+        break;
+    case 5:
+        cout << "Escala" << endl;
+        contClicks = 1;
+        mode = 5;
+        break;
+    case 6:
+        cout << "Cisalhamento" << endl;
+        contClicks = 1;
+        mode = 6;
+        break;
+    case 7:
+        cout << "Reflexao" << endl;
+        contClicks = 1;
+        mode = 7;
+        break;
+    case 8:
+        cout << "Rotacao" << endl;
+        contClicks = 1;
+        mode = 8;
         break;
     }
     drawPontos();
@@ -144,6 +172,10 @@ int main(int argc, char** argv){
     glutAddMenuEntry("Quadrado", 2);
     glutAddMenuEntry("Circulo", 3);
     glutAddMenuEntry("Poligono", 4);
+    glutAddMenuEntry("Escala", 5);
+    glutAddMenuEntry("Cisalhamento", 6);
+    glutAddMenuEntry("Reflexao", 7);
+    glutAddMenuEntry("Rotacao", 8);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     glutMainLoop(); // executa o loop do OpenGL
     return 0; // retorna 0 para o tipo inteiro da funcao main();
@@ -177,13 +209,11 @@ void reshape(int w, int h)
 
 // Funcao usada na funcao callback para utilizacao das teclas normais do teclado
 void keyboard(unsigned char key, int x, int y){
-    cout << key << endl;
     switch (key) { // key - variavel que possui valor ASCII da tecla precionada
         case 27: // codigo ASCII da tecla ESC
             exit(0); // comando pra finalizacao do programa
             break;
         case 'f':
-            cout << "F press" << endl;
             auxPoli = true;
             break;
         default:
@@ -208,7 +238,8 @@ void mouse(int button, int state, int x, int y){
                 x_3 = x;
                 y_3 = height - y;
                 printf("x3y3(%.0f, %.0f)\n",x_3,y_3);
-                glutPostRedisplay();
+                if(contClicks == 3)
+                    glutPostRedisplay();
             }else {
                 click1 = true;
                 x_1 = x;
@@ -247,6 +278,19 @@ void display(void){
             break;
         case 4:
             drawPoli();
+            break;
+        case 5:
+            scale(1.1, 1.1);
+            break;
+        case 6:
+            shear(1.2, 0);
+            break;
+        case 7:
+            reflection(true, false);
+            break;
+        case 8:
+            rotation(10); 
+            break;
         default:
             break;
     }
@@ -504,5 +548,59 @@ void drawPoli() {
             contPoli++;
         }
     }
+    drawPontos();
+}
+
+void scale(double sx, double sy) {
+    ponto *pnt = pontos;
+    if(click1){
+        while(pnt != NULL){
+            pnt->x = pnt->x * sx;
+            pnt->y = pnt->y * sy;
+            pnt = pnt->prox;
+        }
+        click1 = false;
+    }
+    drawPontos();
+}
+
+void shear(double cx, double cy) {
+    ponto *pnt = pontos;
+    if(click1){
+        while(pnt != NULL){
+            pnt->x = pnt->x + (cx* pnt->x);
+            pnt->y = pnt->y + (cy* pnt->y);
+            pnt = pnt->prox;
+        }
+        click1 = false;
+    }
+    drawPontos();
+}
+
+void reflection(bool x, bool y) {
+    ponto *pnt = pontos;
+    if(click1){
+        while(pnt != NULL){
+            if(x) {
+                pnt->x = -pnt->x;
+            }
+            if(y) {
+                pnt->y = -pnt->y;
+            }
+            pnt = pnt->prox;
+        }
+        click1 = false;
+    }
+    drawPontos();
+}
+
+void rotation(double angulo) {
+    ponto *pnt = pontos;
+    while(pnt != NULL){
+        pnt->x = (pnt->x * cos(angulo*PI/180)) - (pnt->y * sin(angulo*PI/180));
+        pnt->y = (pnt->x * sin(angulo*PI/180)) + (pnt->y * cos(angulo*PI/180));
+        pnt = pnt->prox;
+    }
+    click1 = false;
     drawPontos();
 }
