@@ -99,6 +99,8 @@ void scale(double sx, double sy);
 void shear(double cx, double cy);
 void reflection(bool x, bool y);
 void rotation(double angulo);
+void translation(double x, double y);
+
 // Menu botao direito
 void menuOptions(int op) {
     switch (op){
@@ -149,6 +151,11 @@ void menuOptions(int op) {
         contClicks = 1;
         mode = 8;
         break;
+    case 9:
+        cout << "Translacao" << endl;
+        contClicks = 1;
+        mode = 9;
+        break;
     }
     drawPontos();
 }
@@ -176,6 +183,7 @@ int main(int argc, char** argv){
     glutAddMenuEntry("Cisalhamento", 6);
     glutAddMenuEntry("Reflexao", 7);
     glutAddMenuEntry("Rotacao", 8);
+    glutAddMenuEntry("Translacao", 9);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     glutMainLoop(); // executa o loop do OpenGL
     return 0; // retorna 0 para o tipo inteiro da funcao main();
@@ -263,6 +271,7 @@ void display(void){
     glColor3f (0.0, 0.0, 0.0); // Seleciona a cor default como preto
     
     cout << "mode: " << mode << endl;
+    
     switch (mode){
         case 0:
             drawLine();
@@ -290,6 +299,9 @@ void display(void){
             break;
         case 8:
             rotation(10); 
+            break;
+        case 9:
+            translation(20, 40); 
             break;
         default:
             break;
@@ -599,6 +611,17 @@ void rotation(double angulo) {
     while(pnt != NULL){
         pnt->x = (pnt->x * cos(angulo*PI/180)) - (pnt->y * sin(angulo*PI/180));
         pnt->y = (pnt->x * sin(angulo*PI/180)) + (pnt->y * cos(angulo*PI/180));
+        pnt = pnt->prox;
+    }
+    click1 = false;
+    drawPontos();
+}
+
+void translation(double x, double y) {
+    ponto *pnt = pontos;
+    while(pnt != NULL){
+        pnt->x += x;
+        pnt->y += y;
         pnt = pnt->prox;
     }
     click1 = false;
